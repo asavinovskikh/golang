@@ -1,4 +1,4 @@
-module github.com/asavinovskikh/golang/tree/master/hw01_hello_otus
+module github.com/asavinovskikh/golang/hw01_hello_otus
 
 go 1.19
 
