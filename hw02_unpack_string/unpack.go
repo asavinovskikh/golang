@@ -6,49 +6,48 @@ import (
 	"strings"
 )
 
-var ErrInvalidString = errors.New("invalid string")
-var specSymbol int32 = 92
+var (
+	ErrInvalidString       = errors.New("invalid string")
+	specSymbol       int32 = 92
+)
 
 func Unpack(unpackingString string) (string, error) {
-	s := make([]string, len(unpackingString))
-	var prev rune = 0
-	var specs = false
+	var s []string
+	var prev rune
+	var specs bool
 
 	for _, v := range unpackingString {
 		if v == specSymbol {
 			specs = !specs
-			if specs == false {
+			if !specs {
 				prev = v
 				s = append(s, string(prev))
 			}
 			continue
 		}
 
-		//amount
+		// amount
 		if amount, err := strconv.Atoi(string(v)); err == nil {
-			if specs == true {
+			if specs {
 				prev = v
 				s = append(s, string(prev))
 				specs = false
 				continue
 			}
 
-			if prev != 0 {
-				s = s[:len(s)-1]
-
-				for amount > 0 {
-					s = append(s, string(prev))
-					amount--
-				}
-				prev = 0
-				continue
-			} else {
+			if prev == 0 {
 				return "", ErrInvalidString
 			}
+			s = s[:len(s)-1]
 
+			for amount > 0 {
+				s = append(s, string(prev))
+				amount--
+			}
+			prev = 0
 		} else {
-			//letter
-			if specs == true {
+			// letter
+			if specs {
 				return "", ErrInvalidString
 			}
 			prev = v
