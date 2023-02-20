@@ -2,25 +2,20 @@ package hw02unpackstring
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 )
 
 var ErrInvalidString = errors.New("invalid string")
+var specSymbol int32 = 92
 
-func Unpack(_ string) (string, error) {
-	return "", nil
-}
-
-func main(mystring string) (string, error) {
-	s := make([]string, len(mystring))
+func Unpack(unpackingString string) (string, error) {
+	s := make([]string, len(unpackingString))
 	var prev rune = 0
 	var specs = false
 
-	for ind, v := range mystring {
-		fmt.Printf("%q ну че погнали %q .\n", ind, v) //убрать1
-		if v == 92 {
+	for _, v := range unpackingString {
+		if v == specSymbol {
 			specs = !specs
 			if specs == false {
 				prev = v
@@ -29,19 +24,16 @@ func main(mystring string) (string, error) {
 			continue
 		}
 
+		//amount
 		if amount, err := strconv.Atoi(string(v)); err == nil {
-			//fmt.Printf("%q looks like a number.\n", v) //убрать1
 			if specs == true {
-				//	fmt.Printf("%q но мы будем думать что это символ.\n", v) //убрать1
 				prev = v
-				specs = false
 				s = append(s, string(prev))
 				specs = false
 				continue
 			}
 
 			if prev != 0 {
-
 				s = s[:len(s)-1]
 
 				for amount > 0 {
@@ -51,25 +43,16 @@ func main(mystring string) (string, error) {
 				prev = 0
 				continue
 			} else {
-				if specs == true {
-					fmt.Printf("%q specs\n", string(v)) //kill
-					specs = false
-					continue
-				}
-				err := errors.New("amount is not appropriate to text")
-				fmt.Printf("%q message incorrect\n", v) //убрать2
-				return "", err
+				return "", ErrInvalidString
 			}
 
 		} else {
-			//s := "hello " + string('0' + 3)
-			//s := "hello " + string('A' + 1)
-			prev = v
-			if specs == false {
-				s = append(s, string(prev))
+			//letter
+			if specs == true {
+				return "", ErrInvalidString
 			}
-			specs = false
-			//fmt.Printf("%q буква \n", v)
+			prev = v
+			s = append(s, string(prev))
 		}
 	}
 	result := strings.Join(s, "")
