@@ -12,7 +12,7 @@ var (
 )
 
 func Unpack(unpackingString string) (string, error) {
-	var s []string
+	var builder strings.Builder
 	var prev rune
 	var specs bool
 
@@ -21,7 +21,7 @@ func Unpack(unpackingString string) (string, error) {
 			specs = !specs
 			if !specs {
 				prev = v
-				s = append(s, string(prev))
+				builder.WriteString(string(prev))
 			}
 			continue
 		}
@@ -30,7 +30,7 @@ func Unpack(unpackingString string) (string, error) {
 		if amount, err := strconv.Atoi(string(v)); err == nil {
 			if specs {
 				prev = v
-				s = append(s, string(prev))
+				builder.WriteString(string(prev))
 				specs = false
 				continue
 			}
@@ -38,10 +38,9 @@ func Unpack(unpackingString string) (string, error) {
 			if prev == 0 {
 				return "", ErrInvalidString
 			}
-			s = s[:len(s)-1]
 
 			for amount > 0 {
-				s = append(s, string(prev))
+				builder.WriteString(string(prev))
 				amount--
 			}
 			prev = 0
@@ -51,9 +50,9 @@ func Unpack(unpackingString string) (string, error) {
 				return "", ErrInvalidString
 			}
 			prev = v
-			s = append(s, string(prev))
+			builder.WriteString(string(prev))
 		}
 	}
-	result := strings.Join(s, "")
+	result := builder.String()
 	return result, nil
 }
